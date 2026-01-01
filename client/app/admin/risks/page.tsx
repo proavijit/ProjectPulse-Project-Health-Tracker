@@ -16,7 +16,7 @@ export default function AdminRisksPage() {
             // Fetch all risks for comprehensive oversight
             const res = await risksApi.getAll();
             if (res.data.success) {
-                setRisks(res.data.data);
+                setRisks(res.data.data || []);
             }
         } catch (err) {
             console.error('Failed to fetch risks');

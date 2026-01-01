@@ -32,7 +32,12 @@ export default function ClientDashboard() {
     if (loading) return <div className="text-center py-10">Loading your projects...</div>;
     if (error) return <div className="text-center py-10 text-red-600">{error}</div>;
 
-    const { stats, assignedProjects, pendingFeedback, lastFeedback } = data;
+    const {
+        stats = { totalProjects: 0, pendingFeedback: 0, onTrack: 0, atRisk: 0, critical: 0 },
+        assignedProjects = [],
+        pendingFeedback = [],
+        lastFeedback = null
+    } = data || {};
 
     return (
         <div className="space-y-8">
@@ -71,7 +76,7 @@ export default function ClientDashboard() {
                             <div className="flex flex-col items-center justify-center py-4 bg-gray-50 rounded-xl border border-gray-100">
                                 <span className="text-sm text-gray-400 uppercase tracking-wider font-semibold">Health Score</span>
                                 <span className={`text-4xl font-black mt-1 ${project.healthScore >= 80 ? 'text-green-600' :
-                                        project.healthScore >= 60 ? 'text-amber-600' : 'text-red-600'
+                                    project.healthScore >= 60 ? 'text-amber-600' : 'text-red-600'
                                     }`}>
                                     {project.healthScore}%
                                 </span>

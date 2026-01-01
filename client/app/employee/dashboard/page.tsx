@@ -32,7 +32,12 @@ export default function EmployeeDashboard() {
     if (loading) return <div className="text-center py-10">Loading dashboard...</div>;
     if (error) return <div className="text-center py-10 text-red-600">{error}</div>;
 
-    const { stats, assignedProjects, pendingCheckIns, myOpenRisks } = data;
+    const {
+        stats = { totalProjects: 0, pendingCheckIns: 0, openRisks: 0, criticalProjects: 0 },
+        assignedProjects = [],
+        pendingCheckIns = [],
+        myOpenRisks = []
+    } = data || {};
 
     return (
         <div className="space-y-8">
@@ -89,7 +94,7 @@ export default function EmployeeDashboard() {
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-500">Health Score</span>
                                     <span className={`font-bold ${project.healthScore >= 80 ? 'text-green-600' :
-                                            project.healthScore >= 60 ? 'text-amber-600' : 'text-red-600'
+                                        project.healthScore >= 60 ? 'text-amber-600' : 'text-red-600'
                                         }`}>
                                         {project.healthScore}/100
                                     </span>

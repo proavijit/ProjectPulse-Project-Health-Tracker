@@ -31,7 +31,12 @@ export default function AdminDashboard() {
     if (loading) return <div className="text-center py-10">Loading dashboard...</div>;
     if (error) return <div className="text-center py-10 text-red-600">{error}</div>;
 
-    const { stats, highRiskProjects, openHighRisks, projectsMissingCheckIns } = data;
+    const {
+        stats = { totalProjects: 0, onTrack: 0, atRisk: 0, critical: 0 },
+        highRiskProjects = [],
+        openHighRisks = [],
+        projectsMissingCheckIns = []
+    } = data || {};
 
     return (
         <div className="space-y-8">

@@ -76,6 +76,7 @@ export const mockRisksApi = {
         });
         return getRes(risk);
     },
+    getByProject: async (pid: string) => getRes(db.query('risks', r => r.project?._id === pid || r.project === pid)),
     update: async (id: string, updates: any) => {
         const user: any = JSON.parse(localStorage.getItem('user') || '{}');
         const risk = db.update('risks', id, updates);
@@ -95,22 +96,64 @@ export const mockRisksApi = {
 export const mockDashboardApi = {
     getAdmin: async () => {
         const projects = db.get('projects');
-        const risks = db.query('risks', r => r.status === 'Open');
+        const risks = db.query('risks', r => r.status === 'Open' && (r.severity === 'High' || r.severity === 'Medium'));
+
+        const stats = {
+            totalProjects: projects.length,
+            onTrack: projects.filter((p: any) => p.status === 'On Track').length,
+            atRisk: projects.filter((p: any) => p.status === 'At Risk').length,
+            critical: projects.filter((p: any) => p.status === 'Critical').length,
+            completed: projects.filter((p: any) => p.status === 'Completed').length,
+            missingCheckIns: 0,
+            openHighRisks: risks.length,
+        };
+
         return getRes({
-            stats: { totalProjects: projects.length, atRisk: projects.filter((p: any) => p.healthScore < 70).length },
-            projects,
-            topRisks: risks.slice(0, 5)
+            stats,
+            projectsByStatus: {
+                'On Track': projects.filter((p: any) => p.status === 'On Track'),
+                'At Risk': projects.filter((p: any) => p.status === 'At Risk'),
+                'Critical': projects.filter((p: any) => p.status === 'Critical'),
+                'Completed': projects.filter((p: any) => p.status === 'Completed'),
+            },
+            projectsMissingCheckIns: [],
+            highRiskProjects: projects.filter((p: any) => p.status === 'At Risk' || p.status === 'Critical'),
+            openHighRisks: risks,
         });
     },
     getEmployee: async () => {
         const user: any = JSON.parse(localStorage.getItem('user') || '{}');
-        const projects = db.query('projects', p => p.employees?.some((e: any) => e._id === user._id));
-        return getRes({ projects, pendingCheckins: [] });
+        const assignedProjects = db.query('projects', p => p.employees?.some((e: any) => e._id === user._id));
+        const myOpenRisks = db.query('risks', r => r.createdBy?._id === user._id && r.status === 'Open');
+
+        return getRes({
+            stats: {
+                totalProjects: assignedProjects.length,
+                pendingCheckIns: 0,
+                openRisks: myOpenRisks.length,
+                criticalProjects: assignedProjects.filter((p: any) => p.status === 'Critical').length,
+            },
+            assignedProjects,
+            pendingCheckIns: [],
+            myOpenRisks
+        });
     },
     getClient: async () => {
         const user: any = JSON.parse(localStorage.getItem('user') || '{}');
-        const projects = db.query('projects', p => p.client?._id === user._id);
-        return getRes({ projects, pendingFeedback: [] });
+        const assignedProjects = db.query('projects', p => p.client?._id === user._id);
+
+        return getRes({
+            stats: {
+                totalProjects: assignedProjects.length,
+                pendingFeedback: 0,
+                onTrack: assignedProjects.filter((p: any) => p.status === 'On Track').length,
+                atRisk: assignedProjects.filter((p: any) => p.status === 'At Risk').length,
+                critical: assignedProjects.filter((p: any) => p.status === 'Critical').length,
+            },
+            assignedProjects,
+            pendingFeedback: [],
+            lastFeedback: null
+        });
     }
 };
 
