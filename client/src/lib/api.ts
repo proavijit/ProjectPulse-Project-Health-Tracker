@@ -1,6 +1,8 @@
 import axios from 'axios';
+import * as mock from './mockApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+const USE_MOCK = process.env.NEXT_PUBLIC_STANDALONE === 'true' || true; // Set to true for live demo default
 
 // Create axios instance
 const api = axios.create({
@@ -39,7 +41,7 @@ api.interceptors.response.use(
 );
 
 // Auth API
-export const authApi = {
+export const authApi = USE_MOCK ? mock.mockAuthApi : {
     login: (email: string, password: string) =>
         api.post('/auth/login', { email, password }),
     getCurrentUser: () => api.get('/auth/me'),
@@ -47,7 +49,7 @@ export const authApi = {
 };
 
 // Projects API
-export const projectsApi = {
+export const projectsApi = USE_MOCK ? mock.mockProjectsApi : {
     getAll: () => api.get('/projects'),
     getById: (id: string) => api.get(`/projects/${id}`),
     create: (data: any) => api.post('/projects', data),
@@ -56,21 +58,21 @@ export const projectsApi = {
 };
 
 // Check-ins API
-export const checkinsApi = {
+export const checkinsApi = USE_MOCK ? mock.mockCheckinsApi : {
     create: (data: any) => api.post('/checkins', data),
     getByProject: (projectId: string) => api.get(`/checkins/project/${projectId}`),
     getPending: () => api.get('/checkins/pending'),
 };
 
 // Feedback API
-export const feedbackApi = {
+export const feedbackApi = USE_MOCK ? mock.mockFeedbackApi : {
     create: (data: any) => api.post('/feedback', data),
     getByProject: (projectId: string) => api.get(`/feedback/project/${projectId}`),
     getPending: () => api.get('/feedback/pending'),
 };
 
 // Risks API
-export const risksApi = {
+export const risksApi = USE_MOCK ? mock.mockRisksApi : {
     getAll: () => api.get('/risks'),
     create: (data: any) => api.post('/risks', data),
     getByProject: (projectId: string) => api.get(`/risks/project/${projectId}`),
@@ -79,14 +81,14 @@ export const risksApi = {
 };
 
 // Dashboard API
-export const dashboardApi = {
+export const dashboardApi = USE_MOCK ? mock.mockDashboardApi : {
     getAdmin: () => api.get('/dashboard/admin'),
     getEmployee: () => api.get('/dashboard/employee'),
     getClient: () => api.get('/dashboard/client'),
 };
 
 // Activities API
-export const activitiesApi = {
+export const activitiesApi = USE_MOCK ? mock.mockActivitiesApi : {
     getByProject: (projectId: string, limit = 50) =>
         api.get(`/activities/project/${projectId}?limit=${limit}`),
 };
